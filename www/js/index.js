@@ -5,18 +5,18 @@ var Layout = require('./views/layout');
 var About = require('./views/about');
 var Word = require('./views/word');
 var mWord = require('./models/word');
-var UserComments = require('./models/usercomments');
+var Comments = require('./models/comments');
 var Words = require('./views/words');
 var OldWord = require('./views/oldword');
 
 function onOnline() {
   mWord.online();
-  UserComments.online();
+  Comments.online();
 }
 
 function onOffline() {
   mWord.offline();
-  UserComments.offline();
+  Comments.offline();
 }
 
 var app = {

@@ -1,7 +1,7 @@
 'use strict';
 var m = require('mithril');
 var Word = require('../models/word');
-var UserComments = require('../models/usercomments');
+var Comments = require('../models/comments');
 
 var CommentComponent = {
   view: function(vnode) {
@@ -42,9 +42,9 @@ var formComponent = {
               'input.input[type=text][placeholder=Write a sentence using the word...]',
               {
                 oninput: m.withAttr('value', function(value) {
-                  UserComments.inputComment = value;
+                  Comments.inputComment = value;
                 }),
-                value: UserComments.inputComment,
+                value: Comments.inputComment,
               },
             ),
           ]),
@@ -53,7 +53,7 @@ var formComponent = {
               'button.button',
               {
                 onclick: function() {
-                  UserComments.save(Word.selected.word);
+                  Comments.save(Word.selected.word);
                 },
               },
               '>',
@@ -68,7 +68,7 @@ var formComponent = {
 var NewComment = {
   view: function() {
     return [
-      m('div.comment', UserComments.cheat ? m(formComponent) : m(badComment)),
+      m('div.comment', Comments.cheat ? m(formComponent) : m(badComment)),
     ];
   },
 };
@@ -76,10 +76,10 @@ var NewComment = {
 module.exports = {
   oninit: function(vnode) {
     Word.load(vnode.attrs.date);
-    UserComments.load(vnode.attrs.date);
+    Comments.load(vnode.attrs.date);
   },
   view: function() {
-    UserComments.showCommentsOfSelectedDay();
+    Comments.showCommentsOfSelectedDay();
     return [
       m('div.appcontent', [
         m('div.description', [
@@ -95,7 +95,7 @@ module.exports = {
         ]),
         m(
           'div.box.comments',
-          UserComments.data.comments.map(comment => {
+          Comments.data.comments.map(comment => {
             return m(CommentComponent, comment);
           }),
         ),

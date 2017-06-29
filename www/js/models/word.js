@@ -1,39 +1,19 @@
-'use strict';
-var m = require('mithril');
-var Words = require('./words');
-var UserComments = require('./usercomments');
+const m = require('mithril');
+const Words = require('./words');
+const moment = require('moment');
 
-function zero_pad(number) {
-  if (number < 10) {
-    number = '0' + number;
-  }
-  return number;
-}
+let Word = {};
 
-function setDate(input) {
-  if (input) {
-    Word.date = input;
-  } else {
-    var today = new Date();
-    Word.date =
-      today.getFullYear() +
-      '-' +
-      zero_pad(parseInt(today.getMonth()) + 1) +
-      '-' +
-      today.getDate();
-  }
-}
-
-function setWord() {
-  var result = Words.data.filter(obj => {
-    return obj.date === Word.date;
-  })[0];
-  Word.selected = result;
+function setWord(data, input) {
+  const result = data.filter(obj => obj.date === input)[0];
+  Word.data = result;
   Word.loading = false;
+  Word.date = input;
   m.redraw();
 }
 
-var Word = {
+
+Word = {
   date: '',
   data: {
     word: '',
@@ -42,10 +22,15 @@ var Word = {
     synonyms: [],
   },
   loading: true,
-  load: function(input) {
-    console.log(Words.load());
-    setDate(input);
-    setWord();
+  load(input) {
+    Words.load()
+      .then((result) => {
+        if (input) {
+          setWord(result, input);
+        } else {
+          setWord(result, moment().format('YYYY-MM-DD'));
+        }
+      });
   },
 };
 

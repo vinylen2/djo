@@ -1,70 +1,69 @@
-'use strict';
-var m = require('mithril');
-var Word = require('../models/word');
-var UserComments = require('../models/usercomments');
+const m = require('mithril');
+const Word = require('../models/word');
+const Comments = require('../models/comments');
 
-var CommentComponent = {
-  view: function(vnode) {
+const CommentComponent = {
+  view(vnode) {
     return [
       m('div.comment', [
         m('div.commentPar', [
-          m('p.commentText', vnode.attrs.comment),
-          m('p.commentCountry', vnode.attrs.country),
+          m('p.commentText', vnode.attrs.text),
+          m('p.commentCountry', vnode.attrs.region),
         ]),
         m(
           'div.voting',
-          UserComments.data.storage.votes[vnode.attrs.id]
+          Comments.user.published
             ? [
-                m(
+              m(
                   'button.vote.up.pressed',
-                  {
-                    onclick: function() {},
-                  },
+                {
+                  onclick() {},
+                },
                   '∧',
                 ),
-                m(
+              m(
                   'button.vote.down.pressed',
-                  {
-                    onclick: function() {},
-                  },
+                {
+                  onclick() {},
+                },
                   '∨',
                 ),
-                m('p.rank', vnode.attrs.rank),
-              ]
+              m('p.rank', vnode.attrs.rank),
+            ]
             : [
-                m(
+              m(
                   'button.vote.up',
-                  {
-                    onclick: function() {
-                      UserComments.vote(vnode.attrs, true);
-                    },
+                {
+                  onclick() {
+                    Comments.vote(vnode.attrs, true);
                   },
+                },
                   '∧',
                 ),
-                m(
+              m(
                   'button.vote.down',
-                  {
-                    onclick: function() {
-                      UserComments.vote(vnode.attrs, false);
-                    },
+                {
+                  onclick() {
+                    Comments.vote(vnode.attrs, false);
                   },
+                },
                   '∨',
                 ),
-                m('p.rank', vnode.attrs.rank),
-              ],
+              m('p.rank', vnode.attrs.rank),
+            ],
         ),
       ]),
     ];
   },
 };
 
-var formComponent = {
-  view: function() {
+const formComponent = {
+  view() {
     return [
       m(
         'form',
         {
-          onsubmit: function(event) {
+          onsubmit(event) {
             event.preventDefault();
           },
         },
@@ -73,10 +72,10 @@ var formComponent = {
             m(
               'input.input[type=text][placeholder=Write a sentence using the word...]',
               {
-                oninput: m.withAttr('value', function(value) {
-                  UserComments.inputComment = value;
+                oninput: m.withAttr('value', (value) => {
+                  Comments.inputComment = value;
                 }),
-                value: UserComments.inputComment,
+                value: Comments.inputComment,
               },
             ),
           ]),
@@ -84,8 +83,8 @@ var formComponent = {
             m(
               'button.button',
               {
-                onclick: function() {
-                  UserComments.save(Word.selected.word);
+                onclick() {
+                  Comments.save(Word.selected.word);
                 },
               },
               '>',
@@ -97,14 +96,14 @@ var formComponent = {
   },
 };
 
-var badComment = {
-  view: function() {
+const badComment = {
+  view() {
     return [
       m('div.comment.bad', [
         m('div.commentPar', [
           m(
             'p.alert',
-            UserComments.network
+            Comments.network
               ? 'Comment must include word of the day.'
               : 'Offline - no comments allowed',
           ),
@@ -114,16 +113,16 @@ var badComment = {
   },
 };
 
-var NewComment = {
-  view: function() {
+const NewComment = {
+  view() {
     return [
-      m('div.comment', UserComments.network ? m(formComponent) : m(badComment)),
+      m('div.comment', Comments.network ? m(formComponent) : m(badComment)),
     ];
   },
 };
 
-var NoComment = {
-  view: function() {
+const NoComment = {
+  view() {
     return [
       m('div.comment', [
         m('div.commentPar', [m('p.alert', 'Comment submitted.')]),
@@ -132,49 +131,45 @@ var NoComment = {
   },
 };
 
-var loadingScreen = {
-  view: function() {
+const loadingScreen = {
+  view() {
     return [m('div.loader', '')];
   },
 };
 
-var wordComponent = {
-  view: function() {
+const wordComponent = {
+  view() {
     return [
       m('div.description', [
         m('h1', Word.data.word),
         m('div.content', [
           m('p.left', Word.data.definition),
           m('ul', [
-            Word.data.synonyms.map(synonym => {
-              return m('li.synonym', synonym);
-            }),
+            m('li.synonym', Word.data.synonyms),
           ]),
         ]),
       ]),
       m(
         'div.box.comments',
-        UserComments.data.comments.map(comment => {
-          return m(CommentComponent, comment);
-        }),
+        Comments.data.comments.map(comment =>
+          m(CommentComponent, comment),
+        ),
       ),
       m(
         'div.box.comments',
-        UserComments.data.storage.comment.published
-          ? m(NoComment)
-          : m(NewComment),
+          m(NewComment),
       ),
-      m('div.box.comments', UserComments.relevance ? '' : m(badComment)),
+      m('div.box.comments', Comments.relevance ? '' : m(badComment)),
     ];
   },
 };
 
 module.exports = {
-  oninit: function() {
+  oninit() {
     Word.load();
-    UserComments.load();
+    Comments.load();
   },
-  view: function() {
+  view() {
     return [
       m('div.appcontent', Word.loading ? m(loadingScreen) : m(wordComponent)),
     ];

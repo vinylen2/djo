@@ -1,24 +1,24 @@
-'use strict';
-var m = require('mithril');
-var UserComments = require('../models/usercomments');
-var Word = require('../models/word');
+const m = require('mithril');
+const Comments = require('../models/comments');
+const Words = require('../models/words');
+const moment = require('moment');
 
-var CommentComponent = {
-  view: function(vnode) {
+const CommentComponent = {
+  view(vnode) {
     return [
       m('div.comment', [
         m('div.commentPar', [
           m(
             'a',
             {
-              href: '/' + vnode.attrs.date,
+              href: `/${vnode.attrs.date}`,
               oncreate: m.route.link,
-              onclick: function() {
-                Word.load(vnode.attrs.date);
+              onclick() {
+                Words.load(vnode.attrs.date);
                 console.log('clicked ' + vnode.attrs.date);
               },
             },
-            m('p.commentText.old', vnode.attrs.date + ', ' + vnode.attrs.word),
+            m('p.commentText.old', `${vnode.attrs.date}, ${vnode.attrs.word}`),
           ),
         ]),
         m(
@@ -32,18 +32,15 @@ var CommentComponent = {
   },
 };
 
-var CommentComponentToday = {
-  view: function(vnode) {
+const CommentComponentToday = {
+  view(vnode) {
     return [
       m('div.comment.', [
         m('div.commentPar', [
           m(
             'a',
             { href: '/', oncreate: m.route.link },
-            m(
-              'p.commentText.today.old',
-              vnode.attrs.date + ', ' + vnode.attrs.word,
-            ),
+            m('p.commentText.today.old', `${vnode.attrs.date}, ${vnode.attrs.word}`),
           ),
         ]),
       ]),
@@ -51,18 +48,18 @@ var CommentComponentToday = {
   },
 };
 module.exports = {
-  oninit: function() {
-    Word.load();
-    UserComments.load();
+  oninit() {
+    Words.load();
+    Comments.load();
   },
-  view: function() {
+  view() {
     return [
       m('div.appcontent', [
         m('div.description', [m('h1', 'Archive')]),
         m(
           'div.box.comments',
-          Words.data.map(word => {
-            if (word.date === Words.date) {
+          Words.data.map((word) => {
+            if (word.date === moment().format('YYYY-MM-DD')) {
               return m(CommentComponentToday, word);
             } else {
               return m(CommentComponent, word);
